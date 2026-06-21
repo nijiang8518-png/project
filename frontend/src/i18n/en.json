@@ -1,0 +1,23 @@
+{
+  "app.title": "Equine Management",
+  "nav.dashboard": "Dashboard",
+  "nav.horses": "Horses",
+  "nav.calendar": "Calendar",
+  "nav.logout": "Log out",
+  "login.title": "Sign in",
+  "login.email": "Email",
+  "login.password": "Password",
+  "login.submit": "Log in",
+  "dashboard.totalHorses": "Total horses",
+  "dashboard.active": "Active",
+  "dashboard.resting": "Resting",
+  "dashboard.retired": "Retired",
+  "dashboard.pending": "Pending reminders",
+  "dashboard.upcoming": "Upcoming events",
+  "horses.title": "Horses",
+  "horses.new": "Add horse",
+  "common.name": "Name",
+  "common.status": "Status",
+  "common.breed": "Breed",
+  "common.actions": "Actions"
+}

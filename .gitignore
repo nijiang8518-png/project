@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+.vite/
+.next/
+prisma/dev.db
+prisma/migrations/dev/
+*.sqlite
+*.sqlite3
+.idea/
+.vscode/

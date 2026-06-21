@@ -1,0 +1,23 @@
+{
+  "app.title": "马匹管理系统",
+  "nav.dashboard": "仪表盘",
+  "nav.horses": "马匹",
+  "nav.calendar": "日历",
+  "nav.logout": "退出登录",
+  "login.title": "登录",
+  "login.email": "邮箱",
+  "login.password": "密码",
+  "login.submit": "登录",
+  "dashboard.totalHorses": "马匹总数",
+  "dashboard.active": "在役",
+  "dashboard.resting": "休养",
+  "dashboard.retired": "退役",
+  "dashboard.pending": "待办提醒",
+  "dashboard.upcoming": "即将到期事项",
+  "horses.title": "马匹列表",
+  "horses.new": "新增马匹",
+  "common.name": "名字",
+  "common.status": "状态",
+  "common.breed": "品种",
+  "common.actions": "操作"
+}

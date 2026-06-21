@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: Equine Management System API
+  version: 0.1.0
+  description: REST API for managing horses, health, farrier, training, and competitions.
+servers:
+  - url: http://localhost:4000/api
+paths:
+  /auth/login:
+    post:
+      summary: Login
+      responses:
+        '200': { description: OK }
+  /auth/register:
+    post:
+      summary: Register
+      responses:
+        '200': { description: OK }
+  /horses:
+    get:
+      summary: List horses
+      responses: { '200': { description: OK } }
+    post:
+      summary: Create horse
+      responses: { '201': { description: Created } }
+  /horses/{id}:
+    get:
+      summary: Get horse by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses: { '200': { description: OK } }
+  /health-records/vaccinations:
+    get:
+      summary: List vaccinations
+      responses: { '200': { description: OK } }
+    post:
+      summary: Add vaccination
+      responses: { '201': { description: Created } }
+  /farrier:
+    get:
+      summary: List farrier records
+      responses: { '200': { description: OK } }
+    post:
+      summary: Add farrier record
+      responses: { '201': { description: Created } }
+  /reminders/upcoming:
+    get:
+      summary: Upcoming reminders (next 30 days)
+      responses: { '200': { description: OK } }
+  /dashboard/summary:
+    get:
+      summary: Dashboard summary KPIs
+      responses: { '200': { description: OK } }

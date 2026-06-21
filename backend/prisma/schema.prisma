@@ -1,0 +1,283 @@
+// Equine Management System — Prisma schema
+// Switch provider to "sqlite" for lightweight local dev.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  OWNER
+  VET
+  FARRIER
+  RIDER
+  VIEWER
+}
+
+enum HorseStatus {
+  ACTIVE
+  RESTING
+  RETIRED
+  SOLD
+}
+
+enum Sex {
+  STALLION
+  MARE
+  GELDING
+}
+
+enum ReminderType {
+  VACCINATION
+  DEWORMING
+  FARRIER
+  VET_FOLLOWUP
+  COMPETITION
+  OTHER
+}
+
+enum ReminderStatus {
+  PENDING
+  DONE
+  SNOOZED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(VIEWER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  ownedHorses  Horse[]  @relation("UserOwnsHorses")
+  @@map("users")
+}
+
+model Owner {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  horses    Horse[]
+  @@map("owners")
+}
+
+model Horse {
+  id              String      @id @default(cuid())
+  name            String
+  chipId          String?     @unique @map("chip_id")
+  dateOfBirth     DateTime?   @map("date_of_birth")
+  sex             Sex?
+  breed           String?
+  color           String?
+  heightCm        Float?      @map("height_cm")
+  weightKg        Float?      @map("weight_kg")
+  sireName        String?     @map("sire_name")
+  damName         String?     @map("dam_name")
+  acquiredAt      DateTime?   @map("acquired_at")
+  acquiredPrice   Float?      @map("acquired_price")
+  acquiredFrom    String?     @map("acquired_from")
+  stableLocation  String?     @map("stable_location")
+  status          HorseStatus @default(ACTIVE)
+  photoUrl        String?     @map("photo_url")
+  notes           String?
+
+  ownerId         String?     @map("owner_id")
+  owner           Owner?      @relation(fields: [ownerId], references: [id])
+  managerId       String?     @map("manager_id")
+  manager         User?       @relation("UserOwnsHorses", fields: [managerId], references: [id])
+
+  vetRecords      VeterinaryRecord[]
+  vaccinations    Vaccination[]
+  dewormings      DewormingRecord[]
+  farrierRecords  FarrierRecord[]
+  trainingLogs    TrainingLog[]
+  results         CompetitionResult[]
+  feedingPlans    FeedingPlan[]
+  expenses        Expense[]
+  reminders       Reminder[]
+  attachments     Attachment[]
+
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  @@map("horses")
+}
+
+model VeterinaryRecord {
+  id          String   @id @default(cuid())
+  horseId     String   @map("horse_id")
+  horse       Horse    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  visitDate   DateTime @map("visit_date")
+  vetName     String?  @map("vet_name")
+  diagnosis   String?
+  treatment   String?
+  medication  String?
+  cost        Float?
+  notes       String?
+  attachments Attachment[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  @@map("veterinary_records")
+}
+
+model Vaccination {
+  id          String   @id @default(cuid())
+  horseId     String   @map("horse_id")
+  horse       Horse    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  vaccineName String   @map("vaccine_name")
+  givenAt     DateTime @map("given_at")
+  nextDueAt   DateTime? @map("next_due_at")
+  vetName     String?  @map("vet_name")
+  cost        Float?
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  @@map("vaccinations")
+}
+
+model DewormingRecord {
+  id        String   @id @default(cuid())
+  horseId   String   @map("horse_id")
+  horse     Horse    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  product   String
+  dose      String?
+  givenAt   DateTime @map("given_at")
+  nextDueAt DateTime? @map("next_due_at")
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("deworming_records")
+}
+
+model FarrierRecord {
+  id          String   @id @default(cuid())
+  horseId     String   @map("horse_id")
+  horse       Horse    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  farrierName String?  @map("farrier_name")
+  visitDate   DateTime @map("visit_date")
+  serviceType String?  @map("service_type")
+  cost        Float?
+  nextDueAt   DateTime? @map("next_due_at")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  @@map("farrier_records")
+}
+
+model TrainingLog {
+  id         String   @id @default(cuid())
+  horseId    String   @map("horse_id")
+  horse      Horse    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  date       DateTime
+  discipline String?
+  durationMin Int?    @map("duration_min")
+  intensity  String?
+  riderName  String?  @map("rider_name")
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  @@map("training_logs")
+}
+
+model Competition {
+  id              String   @id @default(cuid())
+  name            String
+  location        String?
+  startDate       DateTime @map("start_date")
+  endDate         DateTime? @map("end_date")
+  level           String?
+  registrationDue DateTime? @map("registration_due")
+  notes           String?
+  results         CompetitionResult[]
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  @@map("competitions")
+}
+
+model CompetitionResult {
+  id            String   @id @default(cuid())
+  competitionId String   @map("competition_id")
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  horseId       String   @map("horse_id")
+  horse         Horse    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  riderName     String?  @map("rider_name")
+  event         String?
+  placement     Int?
+  score         Float?
+  prizeAmount   Float?   @map("prize_amount")
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  @@map("competition_results")
+}
+
+model FeedingPlan {
+  id           String   @id @default(cuid())
+  horseId      String   @map("horse_id")
+  horse        Horse    @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  name         String
+  hayKgPerDay  Float?   @map("hay_kg_per_day")
+  grainKgPerDay Float?  @map("grain_kg_per_day")
+  supplements  String?
+  bcsScore     Float?   @map("bcs_score")
+  effectiveFrom DateTime? @map("effective_from")
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  @@map("feeding_plans")
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  horseId   String?  @map("horse_id")
+  horse     Horse?   @relation(fields: [horseId], references: [id], onDelete: SetNull)
+  category  String
+  amount    Float
+  occurredAt DateTime @map("occurred_at")
+  description String?
+  isIncome  Boolean  @default(false) @map("is_income")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("expenses")
+}
+
+model Reminder {
+  id         String   @id @default(cuid())
+  horseId    String?  @map("horse_id")
+  horse      Horse?   @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  type       ReminderType
+  title      String
+  dueAt      DateTime @map("due_at")
+  status     ReminderStatus @default(PENDING)
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  @@map("reminders")
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  horseId      String?  @map("horse_id")
+  horse        Horse?   @relation(fields: [horseId], references: [id], onDelete: Cascade)
+  vetRecordId  String?  @map("vet_record_id")
+  vetRecord    VeterinaryRecord? @relation(fields: [vetRecordId], references: [id], onDelete: Cascade)
+  filename     String
+  url          String
+  mimeType     String?  @map("mime_type")
+  sizeBytes    Int?     @map("size_bytes")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  @@map("attachments")
+}
