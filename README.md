@@ -1,0 +1,3 @@
+# 🐎 Equine Management System
+
+Bootstrapping…
